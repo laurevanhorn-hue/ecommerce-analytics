@@ -42,6 +42,11 @@ Initial analysis includes:
 - completion rate
 - daily revenue trend
 
+## Key Business Insight
+
+- Completion rate indicates operational efficiency of order processing
+- Revenue trends help identify peak sales periods
+- Early patterns suggest potential differences in user behavior over time
 ---
 
 ## Next Steps
@@ -49,3 +54,10 @@ Initial analysis includes:
 - revenue by user
 - top customers analysis
 - order behavior segmentation
+
+## Why This Project Matters
+
+This project demonstrates the ability to:
+- translate raw data into business insights
+- write analytical SQL and pandas transformations
+- structure a real-world analytics workflow

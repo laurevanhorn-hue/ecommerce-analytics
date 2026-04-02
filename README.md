@@ -99,6 +99,10 @@ import matplotlib.pyplot as plt
 - detection of significant growth events (≥20%)
 - identification of users with increasing spending behavior
 
+## Top Users by Revenue
+
+![Top Users](images/top_users_revenue.png)
+
 ---
 
 ## Key Insights

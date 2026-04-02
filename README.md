@@ -77,6 +77,9 @@ This project explores key analytical questions:
 - completion rate
 - daily revenue trend
 
+### Daily Revenue Trend (Python)
+
+```python
 import matplotlib.pyplot as plt
 
 daily_revenue = (
@@ -94,7 +97,7 @@ plt.ylabel('Revenue')
 plt.xticks(rotation=45)
 plt.tight_layout()
 
-plt.savefig('revenue_trend.png')
+plt.savefig('images/revenue_trend.png')
 plt.show()
 
 ### D2 — User Revenue Analysis

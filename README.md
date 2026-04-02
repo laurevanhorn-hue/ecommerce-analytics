@@ -1,3 +1,7 @@
+## Notebook
+
+[Open analysis notebook](notebooks/ecommerce_analytics.ipynb)
+
 # ecommerce-analytics
 
 Ecommerce analytics project focused on revenue trends, order behavior, and customer spending patterns using Python (pandas) and SQL.

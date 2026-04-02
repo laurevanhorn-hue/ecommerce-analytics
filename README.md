@@ -87,6 +87,33 @@ This project explores key analytical questions:
 - revenue by user
 - top customers
 - contribution of users to total revenue
+import matplotlib.pyplot as plt
+
+# revenue by user
+user_revenue = (
+    df[df['status'] == 'completed']
+    .groupby('user_id', as_index=False)['amount']
+    .sum()
+    .sort_values('amount', ascending=False)
+)
+
+# take top 10 users
+top_users = user_revenue.head(10)
+
+# plot
+plt.figure()
+plt.bar(top_users['user_id'].astype(str), top_users['amount'])
+
+plt.title('Top 10 Users by Revenue')
+plt.xlabel('User ID')
+plt.ylabel('Revenue')
+
+plt.xticks(rotation=45)
+plt.tight_layout()
+
+plt.savefig('images/top_users_revenue.png')
+plt.show()
+
 
 ### D3 — Order Status Analysis
 - completed vs cancelled orders

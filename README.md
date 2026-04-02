@@ -77,28 +77,11 @@ This project explores key analytical questions:
 - completion rate
 - daily revenue trend
 
-### Daily Revenue Trend (Python)
+## Example Output
 
-```python
-import matplotlib.pyplot as plt
+### Daily Revenue Trend
 
-daily_revenue = (
-    df[df['status'] == 'completed']
-    .groupby('order_date', as_index=False)['amount']
-    .sum()
-)
-
-plt.figure()
-plt.plot(daily_revenue['order_date'], daily_revenue['amount'])
-plt.title('Daily Revenue Trend')
-plt.xlabel('Date')
-plt.ylabel('Revenue')
-
-plt.xticks(rotation=45)
-plt.tight_layout()
-
-plt.savefig('images/revenue_trend.png')
-plt.show()
+![Revenue Trend](images/revenue_trend.png)
 
 ### D2 — User Revenue Analysis
 - revenue by user

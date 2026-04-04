@@ -1,129 +1,225 @@
-## Notebook
+# Ecommerce Analytics Project (SQL + Pandas)
 
-[Open analysis notebook](notebooks/ecommerce_analytics.ipynb)
+## 📌 Project Overview
 
-# ecommerce-analytics
+This project analyzes ecommerce transaction data to understand:
 
-Ecommerce analytics project focused on revenue trends, order behavior, and customer spending patterns using Python (pandas) and SQL.
+- revenue trends over time  
+- distribution of user spending  
+- operational efficiency (order completion)  
+- behavioral changes in customer spending  
 
----
-
-## Project Overview
-
-This project analyzes ecommerce order data to identify business trends and customer behavior.
-
-The goal is to simulate a real-world analytics workflow:
-- clean and validate data
-- calculate business metrics
-- translate SQL logic into pandas
-- extract actionable business insights
+The goal is to move beyond simple aggregates and identify **actionable patterns in user behavior**.
 
 ---
 
-## Dataset
+## 🎯 Key Focus
 
-The dataset represents ecommerce orders and includes:
-
-- `order_id` — unique order identifier  
-- `user_id` — customer identifier  
-- `order_date` — date of order  
-- `amount` — order value  
-- `status` — order status (e.g., completed, cancelled)  
-
-For advanced analysis (D4), a transaction-style dataset was created to simulate sequential user behavior.
+- Translate SQL analytics patterns into pandas  
+- Work with transaction-level data  
+- Detect behavioral changes using window functions (LAG)  
+- Build reusable analysis patterns  
 
 ---
 
-## Tools Used
+## 🧰 Tech Stack
 
-- Python (pandas)
-- SQL (analytical queries and window logic)
-- Google Colab / Jupyter Notebook
-- GitHub
-
----
-
-## Project Structure
-
-ecommerce-analytics/
-│
-├── notebooks/
-│   └── ecommerce_analytics.ipynb
-│
-├── images/
-│
-└── README.md
+- Python (pandas)  
+- SQL (analytical patterns)  
+- Matplotlib (visualization)  
+- Google Colab  
 
 ---
 
-## Business Questions
+## 📊 Dataset
 
-This project explores key analytical questions:
+- Synthetic transaction dataset (based on `seaborn tips`)  
+- Transformed into ecommerce-style data  
 
-- What is the total revenue and number of orders?
-- What share of orders is successfully completed?
-- How does revenue change over time?
-- Which users generate the most revenue?
-- How does user spending evolve across transactions?
+Columns:
+- `user_id`  
+- `order_date`  
+- `amount`  
+- `status` (completed / cancelled)  
 
 ---
 
-## Current Analyses
+# 📈 Analysis
 
-### D1 — Revenue Overview
-- total revenue
-- total orders
-- completed orders
-- completion rate
-- daily revenue trend
+---
 
-## Example Output
+## D1 — Revenue Overview
 
-### Daily Revenue Trend
+Daily revenue is calculated using completed orders only.
+
+```sql
+SELECT
+    DATE(order_date) AS date,
+    SUM(amount) AS daily_revenue
+FROM orders
+WHERE status = 'completed'
+GROUP BY DATE(order_date)
+ORDER BY date;
+```
 
 ![Revenue Trend](images/revenue_trend.png)
 
-### D2 — User Revenue Analysis
-- revenue by user
-- top customers
-- contribution of users to total revenue
-import matplotlib.pyplot as plt
+### Insights
 
-### D3 — Order Status Analysis
-- completed vs cancelled orders
-- operational performance indicators
+- Revenue remains relatively stable over time  
+- No strong upward or downward trend observed  
+- Daily fluctuations are moderate and consistent  
+- Revenue reflects only completed transactions (clean KPI)  
 
-### D4 — User Spending Growth Over Time
-- sequential comparison of user transactions
-- calculation of growth between current and previous order
-- detection of significant growth events (≥20%)
-- identification of users with increasing spending behavior
+---
 
-## Top Users by Revenue
+## D2 — User Revenue Analysis
+
+Total revenue per user is calculated to identify high-value customers.
+
+```sql
+SELECT
+    user_id,
+    SUM(amount) AS total_revenue
+FROM orders
+WHERE status = 'completed'
+GROUP BY user_id
+ORDER BY total_revenue DESC
+LIMIT 10;
+```
 
 ![Top Users](images/top_users_revenue.png)
 
----
+### Insights
 
-## Key Insights
-
-- Completion rate reflects operational efficiency in order processing  
-- Revenue trends reveal changes in business performance over time  
-- A small group of users typically generates a large share of revenue  
-- Sequential analysis helps detect behavioral changes, not just absolute values  
-- Users with repeated spending growth may represent high-value or upsell-ready segments  
+- A small group of users generates a large share of total revenue  
+- High-value users significantly outperform average users  
+- Revenue distribution is uneven (typical for ecommerce)  
+- Segmentation enables targeted retention and upselling strategies  
 
 ---
 
-## Technical Patterns Used
+## D3 — Order Status Analysis
 
-This project demonstrates several reusable analytics patterns:
+Order completion efficiency is evaluated.
 
-- aggregation and KPI calculation (`SUM`, `COUNT`, ratios)
-- filtering by business logic (e.g., completed orders only)
-- grouping and sorting with `groupby`
-- time-based analysis
-- window logic translated from SQL to pandas:
-df.groupby('user_id')['amount'].shift(1)
 ```sql
-LAG(amount) OVER (PARTITION BY user_id ORDER BY created_at)
+SELECT
+    status,
+    COUNT(*) AS order_count
+FROM orders
+GROUP BY status;
+```
+
+![Order Status](images/order_status_counts.png)
+
+### Insights
+
+- Most orders are successfully completed  
+- Cancellation rate is relatively low  
+- High completion rate indicates efficient operations  
+- Monitoring cancellations helps detect friction in the purchase process  
+
+---
+
+## D4 — User Spending Growth (Behavioral Analysis)
+
+Each transaction is compared to the previous one using a window function.
+
+```sql
+LAG(amount) OVER (PARTITION BY user_id ORDER BY order_date)
+```
+
+Growth is calculated and significant increases (≥20%) are identified.
+
+```sql
+WITH transactions AS (
+    SELECT
+        user_id,
+        order_date,
+        amount,
+        LAG(amount) OVER (
+            PARTITION BY user_id
+            ORDER BY order_date
+        ) AS prev_amount
+    FROM orders
+),
+growth AS (
+    SELECT
+        *,
+        (amount - prev_amount) / prev_amount AS growth_pct
+    FROM transactions
+)
+SELECT
+    user_id,
+    COUNT(*) AS growth_events_count,
+    AVG(growth_pct) AS avg_growth
+FROM growth
+WHERE growth_pct >= 0.2
+GROUP BY user_id
+ORDER BY growth_events_count DESC;
+```
+
+![Growth Users](images/growth_users.png)
+
+### Insights
+
+- Some users consistently increase their spending over time  
+- These users represent high-potential customers  
+- Growth patterns may indicate successful upselling or increasing trust  
+- This approach captures behavioral change, not just total spend  
+
+---
+
+# 🔄 SQL ↔ Pandas Pattern Mapping
+
+| Task | SQL | Pandas |
+|-----|-----|--------|
+| Aggregation | GROUP BY | `.groupby().agg()` |
+| Filtering | WHERE | boolean indexing |
+| Sorting | ORDER BY | `.sort_values()` |
+| Window function | LAG() | `.groupby().shift()` |
+| Date aggregation | DATE() | `.resample('D')` |
+
+---
+
+# 📁 Project Structure
+
+```
+ecommerce-analytics/
+├── notebooks/
+│   └── ecommerce_analytics.ipynb
+├── images/
+│   ├── revenue_trend.png
+│   ├── top_users_revenue.png
+│   ├── order_status_counts.png
+│   ├── growth_users.png
+└── README.md
+```
+
+---
+
+# 🚀 Key Takeaways
+
+- Aggregates alone are not enough — behavioral patterns matter  
+- Window functions (LAG) are essential for time-based analysis  
+- SQL logic translates directly into pandas workflows  
+- Identifying **changes in behavior** is more valuable than static metrics  
+
+---
+
+# 🔗 Notebook
+
+Full analysis:  
+https://github.com/laurevanhorn-hue/ecommerce-analytics
+
+---
+
+# 📌 Future Improvements
+
+- Add transaction time gap analysis  
+- Detect anomalies in spending behavior  
+- Apply the same logic to real-world datasets (fraud, fintech, subscriptions)  
+
+---
+

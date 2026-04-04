@@ -211,7 +211,7 @@ ecommerce-analytics/
 # 🔗 Notebook
 
 Full analysis:  
-https://github.com/laurevanhorn-hue/ecommerce-analytics
+https://github.com/laurevanhorn-hue/ecommerce-analytics-sql-pandas
 
 ---
 
